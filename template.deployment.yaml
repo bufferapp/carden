@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opeline-template
+spec:
+  selector:
+    matchLabels:
+      app: opeline-template
+  template:
+    metadata:
+      labels:
+        app: opeline-template
+    spec:
+      volumes:
+      - name: bigquery-google-cloud-credentials
+        secret:
+          secretName: bigquery-key
+      containers:
+      - name: opeline-template
+        image: gcr.io/buffer-data/opeline:0.1.4
+        volumeMounts:
+        - name: bigquery-google-cloud-credentials
+          mountPath: /var/secrets/google
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/secrets/google/key.json
+        - name: DATABASE
+          value: your-database
+        - name: COLLECTION
+          value: your-collection
+        - name: BIG_QUERY_TABLE
+          value: raw_change_events
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+                name: mongodb
+                key: uri

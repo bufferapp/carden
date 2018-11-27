@@ -1,0 +1,41 @@
+[
+    {
+        "mode": "NULLABLE",
+        "name": "_id",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "operationType",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "fullDocument",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "collection",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "documentKey",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "clusterTime",
+        "type": "TIMESTAMP"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "payload",
+        "type": "STRING"
+    },
+    {
+        "name": "updateDescription",
+        "type": "STRING"
+    }
+]
