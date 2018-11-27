@@ -1,6 +1,6 @@
-# Opeline
+# Carden
 
-Save MongoDB Change Streams records into Big Query. Opline will crawl MongoDB oplog for a `collection` and send it to a Big Query table.
+Save MongoDB Change Streams records into Big Query. Carden will crawl MongoDB oplog for a `collection` and send it to a Big Query table.
 
 ## Setup
 

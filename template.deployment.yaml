@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: opeline-template
+  name: carden-template
 spec:
   selector:
     matchLabels:
-      app: opeline-template
+      app: carden-template
   template:
     metadata:
       labels:
-        app: opeline-template
+        app: carden-template
     spec:
       volumes:
       - name: bigquery-google-cloud-credentials
         secret:
           secretName: bigquery-key
       containers:
-      - name: opeline-template
-        image: gcr.io/buffer-data/opeline:0.1.4
+      - name: carden-template
+        image: gcr.io/buffer-data/carden:0.1.4
         volumeMounts:
         - name: bigquery-google-cloud-credentials
           mountPath: /var/secrets/google
