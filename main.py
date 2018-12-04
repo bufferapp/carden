@@ -29,7 +29,7 @@ DATABASE = os.getenv("DATABASE")
 COLLECTION = os.getenv("COLLECTION")
 GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT", "buffer-data")
 BIG_QUERY_TABLE = os.getenv("BIG_QUERY_TABLE")
-MAX_SKIPPED_RECORDS = os.getenv("MAX_SKIPPED_RECORDS", 15)
+MAX_SKIPPED_RECORDS = int(os.getenv("MAX_SKIPPED_RECORDS", 15))
 
 # Connect to the desired MongoDB collection
 mongo_client = pymongo.MongoClient(MONGODB_URI, readPreference="secondaryPreferred")
