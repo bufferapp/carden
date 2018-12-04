@@ -1,4 +1,4 @@
-IMAGE_NAME := gcr.io/buffer-data/carden:0.1.3
+IMAGE_NAME := gcr.io/buffer-data/carden:0.1.4
 
 all: run
 

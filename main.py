@@ -29,7 +29,7 @@ DATABASE = os.getenv("DATABASE")
 COLLECTION = os.getenv("COLLECTION")
 GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT", "buffer-data")
 BIG_QUERY_TABLE = os.getenv("BIG_QUERY_TABLE")
-MAX_SKIPPED_RECORDS = os.getenv("MAX_SKIPPED_RECORDS", 5)
+MAX_SKIPPED_RECORDS = os.getenv("MAX_SKIPPED_RECORDS", 15)
 
 # Connect to the desired MongoDB collection
 mongo_client = pymongo.MongoClient(MONGODB_URI, readPreference="secondaryPreferred")
@@ -63,6 +63,8 @@ if row:
             simple_cursor = col.watch(resume_after=resume_token)
             resume_token = simple_cursor.next().get("_id")
             skipped_records = skipped_records + 1
+    if skipped_records >= MAX_SKIPPED_RECORDS:
+        raise RuntimeError("Skipped too many errors. Stopping execution.")
 else:
     cursor = col.watch(full_document="updateLookup")
 
