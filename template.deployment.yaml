@@ -12,26 +12,26 @@ spec:
         app: carden-template
     spec:
       volumes:
-      - name: bigquery-google-cloud-credentials
-        secret:
-          secretName: bigquery-key
-      containers:
-      - name: carden-template
-        image: gcr.io/buffer-data/carden:0.1.4
-        volumeMounts:
         - name: bigquery-google-cloud-credentials
-          mountPath: /var/secrets/google
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /var/secrets/google/key.json
-        - name: DATABASE
-          value: your-database
-        - name: COLLECTION
-          value: your-collection
-        - name: BIG_QUERY_TABLE
-          value: raw_change_events
-        - name: MONGODB_URI
-          valueFrom:
-            secretKeyRef:
-                name: mongodb
-                key: uri
+          secret:
+            secretName: bigquery-key
+      containers:
+        - name: carden-template
+          image: gcr.io/buffer-data/carden:0.1.4
+          volumeMounts:
+            - name: bigquery-google-cloud-credentials
+              mountPath: /var/secrets/google
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/secrets/google/key.json
+            - name: DATABASE
+              value: your-database
+            - name: COLLECTION
+              value: your-collection
+            - name: BIG_QUERY_TABLE
+              value: raw_change_events
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb
+                  key: uri
