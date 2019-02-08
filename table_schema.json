@@ -16,6 +16,11 @@
     },
     {
         "mode": "NULLABLE",
+        "name": "updateDescription",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
         "name": "collection",
         "type": "STRING"
     },
@@ -31,11 +36,17 @@
     },
     {
         "mode": "NULLABLE",
-        "name": "payload",
+        "name": "txnNumber",
+        "type": "NUMERIC"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "lsid",
         "type": "STRING"
     },
     {
-        "name": "updateDescription",
+        "mode": "NULLABLE",
+        "name": "payload",
         "type": "STRING"
     }
 ]
