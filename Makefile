@@ -1,4 +1,4 @@
-IMAGE_NAME := gcr.io/buffer-data/carden:0.1.5
+IMAGE_NAME := gcr.io/buffer-data/carden:0.2.1
 
 all: run
 
@@ -8,7 +8,7 @@ build:
 run: build
 	docker run -it --rm -v ~/.config/gcloud/:/root/.config/gcloud --env-file .env $(IMAGE_NAME)
 
-dev:
+dev: build
 	docker run -it --rm -v ~/.config/gcloud/:/root/.config/gcloud -v $(PWD):/app --env-file .env $(IMAGE_NAME) /bin/bash
 
 push: build

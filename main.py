@@ -1,10 +1,12 @@
 import os
+import stacklogging
 import pymongo
 import datetime
 from bson import json_util
 from google.cloud import bigquery
-from bq_io import BigQueryWriter
 import base64
+
+logger = stacklogging.getLogger(__name__)
 
 
 def parse_change_event(change):
@@ -27,9 +29,12 @@ def parse_change_event(change):
 MONGODB_URI = os.getenv("MONGODB_URI")
 DATABASE = os.getenv("DATABASE")
 COLLECTION = os.getenv("COLLECTION")
-GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT", "buffer-data")
+GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT")
 BIG_QUERY_TABLE = os.getenv("BIG_QUERY_TABLE")
+BIG_QUERY_DATASET = os.getenv("BIG_QUERY_DATASET")
 MAX_SKIPPED_RECORDS = int(os.getenv("MAX_SKIPPED_RECORDS", 15))
+MAX_DAYS_AGO = int(os.getenv("MAX_DAYS_AGO", 7))
+BUFFER_SIZE = int(os.getenv("BUFFER_SIZE", 50))
 
 # Connect to the desired MongoDB collection
 mongo_client = pymongo.MongoClient(MONGODB_URI, readPreference="secondaryPreferred")
@@ -38,43 +43,25 @@ col = db.get_collection(COLLECTION)
 
 # Get a resume token
 bq_client = bigquery.Client(project=GOOGLE_CLOUD_PROJECT)
+bq_dataset = bq_client.dataset(BIG_QUERY_DATASET)
+bq_table = bq_dataset.table(BIG_QUERY_TABLE)
 
-QUERY = f"""
-select _id from `buda.{BIG_QUERY_TABLE}`
-where
-    clusterTime > '2018-11-26' and
-    collection = '{COLLECTION}'
-order by clusterTime desc limit 1
-"""
+cursor = col.watch(full_document="updateLookup")
 
-query_job = bq_client.query(QUERY)
-row = list(query_job.result())
+rows_buffer = []
 
-if row:
-    resume_token = {"_data": base64.b64decode(row[0][0])}
-
-    cursor = None
-    skipped_records = 0
-
-    while not cursor and skipped_records < MAX_SKIPPED_RECORDS:
-        try:
-            cursor = col.watch(full_document="updateLookup", resume_after=resume_token)
-        except pymongo.errors.OperationFailure as e:
-            simple_cursor = col.watch(resume_after=resume_token)
-            resume_token = simple_cursor.next().get("_id")
-            skipped_records = skipped_records + 1
-    if skipped_records >= MAX_SKIPPED_RECORDS:
-        raise RuntimeError("Skipped too many errors. Stopping execution.")
-else:
-    cursor = col.watch(full_document="updateLookup")
-
-with cursor as stream, BigQueryWriter(
-    BIG_QUERY_TABLE,
-    dataset_id="buda",
-    project_id=GOOGLE_CLOUD_PROJECT,
-    client=bq_client,
-    buffer_size=50,
-) as bq_writer:
+with cursor as stream:
     for change in stream:
         record = parse_change_event(change)
-        bq_writer.write(record)
+        rows_buffer.append(record)
+
+        if len(rows_buffer) == BUFFER_SIZE:
+            errors = bq_client.insert_rows_json(
+                bq_table,
+                rows_buffer,
+                skip_invalid_rows=True,
+                ignore_unknown_values=True,
+            )
+            for row_errors in errors:
+                for row_error in row_errors["errors"]:
+                    logger.warning(row_error["message"])
