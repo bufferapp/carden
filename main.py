@@ -70,7 +70,7 @@ where
 order by clusterTime desc limit 1
 """
 
-print(query)
+logger.info("Running query: " + query)
 
 cursor = col.watch(full_document="updateLookup")
 
